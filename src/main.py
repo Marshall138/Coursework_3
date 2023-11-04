@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from src.utils import load_operations, remove_items, sort_key, sort_datas, executed_operations, number_operation, get_result
+from src.utils import *
 
 def get_masking(data, request_type: str):
     """
@@ -10,11 +10,11 @@ def get_masking(data, request_type: str):
     :return:
     """
     score = data.split()
-    last_score = score(-1)
+    last_score = score[-1]
     if request_type == "from":
-        mask_score = last_score[:4] + ' ' + last_score[4:5] + '**' + ' ' '****' + ' ' + last_score[-4:]
+        mask_score = last_score[:4] + ' ' + last_score[4:6] + '**' + ' ' '****' + ' ' + last_score[-4:]
     else:
-        mask_score = last_score[:4] + ' ' + '****' + '' + '****' + ' ' + last_score[-4:]
+        mask_score = last_score[:4] + ' ' + '****' + ' ' + '****' + ' ' + last_score[-4:]
     return " ".join(score[:-1] + [mask_score])
 
 
@@ -24,28 +24,23 @@ def format_date(data):
     :param data:
     :return:
     """
-    date = datetime.strptime(data["date"], "%d,%m,%Y")
-    return date
+    date_o = datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S.%f")
+    return date_o.strftime("%d.%m.%Y")
 
 
-def format_result(data, form_date):
+def format_result(data, form_date, mask_to, mask_from=None):
     """
     Форматирование результата
     :param data:
     :param form_date:
+    :param mask_to:
+    :param mask_from:
     :return:
     """
-    mask_to = get_masking(data["to"], "to")
-    if data.get("from"):
-        mask_from = get_masking(["from"], "from")
-        result = (f"{form_date} {data['description']}\n"
-                  f"{mask_from} -> {mask_to}\n"
-                  f"{data['operationAmount']['amount']} {data['operationAmount']['currency']['name']}")
-    else:
-        result = (f"{form_date} {data['description']}\n"
-                  f"{mask_to}\n"
-                  f"{data['operationAmount']['amount']} {data['operationAmount']['currency']['name']}")
-    return result
+    description = f"{form_date} {data['description']}"
+    transaction = mask_from and f"{mask_from} -> {mask_to}" or mask_to
+    amount = f"{data['operationAmount']['amount']} {data['operationAmount']['currency']['name']}"
+    return f"{description}\n{transaction}\n{amount}"
 
 
 def main(number):
@@ -58,7 +53,11 @@ def main(number):
     results = []
     for data in datas:
         form_date = format_date(data)
-        result_data = format_result(data, form_date)
+        mask_to = get_masking(data['to'], "to")
+        mask_from = None
+        if "from" in data:
+            mask_from = get_masking(data['from'], "from")
+        result_data = format_result(data, form_date, mask_to, mask_from)
         results.append(result_data)
     return results
 
@@ -66,3 +65,4 @@ def main(number):
 if __name__ == '__main__':
     for result in main(5):
         print(result + "\n")
+
