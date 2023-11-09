@@ -15,7 +15,6 @@ def get_masking(data, request_type: str):
         mask_score = last_score[:4] + ' ' + last_score[4:6] + '**' + ' ' + '****' + ' ' + last_score[-4:]
 
     else:
-        #mask_score = '****' + ' ' + '****' + ' ' + '****' + ' ' + last_score[-4:]
         mask_score = '**' + ' ' + last_score[-4:]
     return " ".join(score[:-1] + [mask_score])
 
