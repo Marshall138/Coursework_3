@@ -14,9 +14,6 @@ def get_masking(data, request_type: str):
     if request_type == "from":
         mask_score = f"{last_score[:4]} {last_score[4:6]}** **** {last_score[-4:]}"
 
-    #elif request_type == ["description"]:
-        #mask_score = f"Неизвестно -> **{last_score[-4:]}"
-
     else:
         mask_score = f"**{last_score[-4:]}"
         #mask_score = f"Неизвестно -> **{last_score[-4:]}"
