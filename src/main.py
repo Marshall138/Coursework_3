@@ -12,9 +12,14 @@ def get_masking(data, request_type: str):
     score = data.split()
     last_score = score[-1]
     if request_type == "from":
-        mask_score = last_score[:4] + ' ' + last_score[4:6] + '**' + ' ' '****' + ' ' + last_score[-4:]
+        mask_score = f"{last_score[:4]} {last_score[4:6]}** **** {last_score[-4:]}"
+
+    #elif request_type == ["description"]:
+        #mask_score = f"Неизвестно -> **{last_score[-4:]}"
+
     else:
-        mask_score = last_score[:4] + ' ' + '****' + ' ' + '****' + ' ' + last_score[-4:]
+        mask_score = f"**{last_score[-4:]}"
+        #mask_score = f"Неизвестно -> **{last_score[-4:]}"
     return " ".join(score[:-1] + [mask_score])
 
 
